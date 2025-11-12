@@ -2,10 +2,10 @@
 #include <time.h>
 using namespace sf;
 
-const int M = 20;
-const int N = 10;
+const int height = 20;
+const int width = 1;
 
-int field[M][N] = {0};
+int field[height][width] = {0};
 
 struct Point
 {int x,y;} a[4], b[4];
@@ -24,7 +24,7 @@ int figures[7][4] =
 bool check()
 {
    for (int i=0;i<4;i++)
-      if (a[i].x<0 || a[i].x>=N || a[i].y>=M) return 0;
+      if (a[i].x<0 || a[i].x>= width || a[i].y>= height) return 0;
       else if (field[a[i].y][a[i].x]) return 0;
 
    return 1;
@@ -37,12 +37,12 @@ int tetris()
 
     RenderWindow window(VideoMode(320, 480), "The Game!");
 
-    Texture t1,t2,t3;
-    t1.loadFromFile("images/tetris/tiles.png");
-    t2.loadFromFile("images/tetris/background.png");
-    t3.loadFromFile("images/tetris/frame.png");
+    Texture blockSprite,backgroundSprite,frameSprite;
+    blockSprite.loadFromFile("images/tetris/tiles.png");
+    backgroundSprite.loadFromFile("images/tetris/background.png");
+    frameSprite.loadFromFile("images/tetris/frame.png");
 
-    Sprite s(t1), background(t2), frame(t3);
+    Sprite s(blockSprite), background(backgroundSprite), frame(frameSprite);
 
     int dx=0; bool rotate=0; int colorNum=1;
     float timer=0,delay=0.3; 
@@ -109,16 +109,16 @@ int tetris()
       }
 
     ///////check lines//////////
-    int k=M-1;
-    for (int i=M-1;i>0;i--)
+    int k= height -1;
+    for (int i= height - 1;i>0;i--)
     {
         int count=0;
-        for (int j=0;j<N;j++)
+        for (int j=0;j< width;j++)
         {
             if (field[i][j]) count++;
             field[k][j]=field[i][j];
         }
-        if (count<N) k--;
+        if (count< width) k--;
     }
 
     dx=0; rotate=0; delay=0.3;
@@ -127,8 +127,9 @@ int tetris()
     window.clear(Color::White);    
     window.draw(background);
           
-    for (int i=0;i<M;i++)
-     for (int j=0;j<N;j++)
+    for (int i=0;i< height;i++)//While the block is not at the bottom
+     for (int j=0;j< width;j++)
+
        {
          if (field[i][j]==0) continue;
          s.setTextureRect(IntRect(field[i][j]*18,0,18,18));
