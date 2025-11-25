@@ -4,11 +4,14 @@ using namespace sf;
 
 const int height = 20;
 const int width = 10;
+const int blockSpriteSize = 18;
+const int blockPerShapeNum = 4;
+const int totalColourOptions = 7;
 
 int field[height][width] = {0};
 
 struct Point
-{int x,y;} blockHoriz[4], blockVertic[4];
+{int x,y;} blockHoriz[blockPerShapeNum], blockVertic[blockPerShapeNum];
 
 int figures[7][4] =
 {
@@ -23,7 +26,7 @@ int figures[7][4] =
 
 bool check()
 {
-   for (int i=0;i<4;i++)
+   for (int i=0;i< blockPerShapeNum;i++)
       if (blockHoriz[i].x<0 || blockHoriz[i].x>= width || blockHoriz[i].y>= height) return 0;
       else if (field[blockHoriz[i].y][blockHoriz[i].x]) return 0;
 
@@ -44,7 +47,7 @@ int tetris()
 
     Sprite sprite(blockSprite), background(backgroundSprite), frame(frameSprite);
 
-    int dx=0; bool rotate=0; int colorNum=1;
+    int shapePosition=0; bool rotate=0; int colorNum=1;
     float timer=0,delay=0.3; 
 
     Clock clock;
@@ -63,21 +66,21 @@ int tetris()
 
             if (e.type == Event::KeyPressed)
               if (e.key.code==Keyboard::Up) rotate=true;
-              else if (e.key.code==Keyboard::Left) dx=-1;
-              else if (e.key.code==Keyboard::Right) dx=1;
+              else if (e.key.code==Keyboard::Left) shapePosition=-1;
+              else if (e.key.code==Keyboard::Right) shapePosition=1;
         }
 
     if (Keyboard::isKeyPressed(Keyboard::Down)) delay=0.05;
 
     //// <- Move -> ///
-    for (int i=0;i<4;i++)  { blockVertic[i]=blockHoriz[i]; blockHoriz[i].x+=dx; }
-    if (!check()) for (int i=0;i<4;i++) blockHoriz[i]=blockVertic[i];
+    for (int i=0;i< blockPerShapeNum;i++)  { blockVertic[i]=blockHoriz[i]; blockHoriz[i].x+=shapePosition; }
+    if (!check()) for (int i=0;i< blockPerShapeNum;i++) blockHoriz[i]=blockVertic[i];
 
     //////Rotate//////
     if (rotate)
       {
         Point centerBlock = blockHoriz[1]; //center of rotation
-        for (int i=0;i<4;i++)
+        for (int i=0;i< blockPerShapeNum;i++)
           {
             int x = blockHoriz[i].y-centerBlock.y;
             int y = blockHoriz[i].x-centerBlock.x;
@@ -90,15 +93,15 @@ int tetris()
     ///////Tick//////
     if (timer>delay)
       {
-        for (int i=0;i<4;i++) { blockVertic[i]=blockHoriz[i]; blockHoriz[i].y+=1; }
+        for (int i=0;i< blockPerShapeNum;i++) { blockVertic[i]=blockHoriz[i]; blockHoriz[i].y+=1; }
 
         if (!check())
         {
-         for (int i=0;i<4;i++) field[blockVertic[i].y][blockVertic[i].x]=colorNum;
+         for (int i=0;i< blockPerShapeNum;i++) field[blockVertic[i].y][blockVertic[i].x]=colorNum;
 
-         colorNum=1+rand()%7;
-         int n=rand()%7;
-         for (int i=0;i<4;i++)
+         colorNum=1+rand()% totalColourOptions;
+         int n=rand()% totalColourOptions;
+         for (int i=0;i< blockPerShapeNum;i++)
            {
             blockHoriz[i].x = figures[n][i] % 2;
             blockHoriz[i].y = figures[n][i] / 2;
@@ -110,7 +113,7 @@ int tetris()
 
     ///////check lines//////////
     int spawnPoint= height -1 ;
-    for (int i= height - 1;i>0;i--)
+    for (int i= spawnPoint;i>0;i--)
     {
         int count=0;
         for (int j=0;j< width;j++)
@@ -121,7 +124,7 @@ int tetris()
         if (count< width) spawnPoint--;
     }
 
-    dx=0; rotate=0; delay=0.3;
+    shapePosition=0; rotate=0; delay=0.3;
 
     /////////draw//////////
     window.clear(Color::White);    
@@ -132,16 +135,16 @@ int tetris()
 
        {
          if (field[i][j]==0) continue;
-         sprite.setTextureRect(IntRect(field[i][j]*18,0,18,18));
-         sprite.setPosition(j*18,i*18);
+         sprite.setTextureRect(IntRect(field[i][j]* blockSpriteSize,0, blockSpriteSize, blockSpriteSize));
+         sprite.setPosition(j* blockSpriteSize,i* blockSpriteSize);
          sprite.move(28,31); //offset
          window.draw(sprite);
        }
 
     for (int i=0;i<4;i++)
       {
-        sprite.setTextureRect(IntRect(colorNum*18,0,18,18));
-        sprite.setPosition(blockHoriz[i].x*18,blockHoriz[i].y*18);
+        sprite.setTextureRect(IntRect(colorNum* blockSpriteSize,0, blockSpriteSize, blockSpriteSize));
+        sprite.setPosition(blockHoriz[i].x* blockSpriteSize,blockHoriz[i].y* blockSpriteSize);
         sprite.move(28,31); //offset
         window.draw(sprite);
       }
