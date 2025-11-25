@@ -3,12 +3,12 @@
 using namespace sf;
 
 const int height = 20;
-const int width = 1;
+const int width = 10;
 
 int field[height][width] = {0};
 
 struct Point
-{int x,y;} a[4], b[4];
+{int x,y;} blockHoriz[4], blockVertic[4];
 
 int figures[7][4] =
 {
@@ -24,8 +24,8 @@ int figures[7][4] =
 bool check()
 {
    for (int i=0;i<4;i++)
-      if (a[i].x<0 || a[i].x>= width || a[i].y>= height) return 0;
-      else if (field[a[i].y][a[i].x]) return 0;
+      if (blockHoriz[i].x<0 || blockHoriz[i].x>= width || blockHoriz[i].y>= height) return 0;
+      else if (field[blockHoriz[i].y][blockHoriz[i].x]) return 0;
 
    return 1;
 };
@@ -42,7 +42,7 @@ int tetris()
     backgroundSprite.loadFromFile("images/tetris/background.png");
     frameSprite.loadFromFile("images/tetris/frame.png");
 
-    Sprite s(blockSprite), background(backgroundSprite), frame(frameSprite);
+    Sprite sprite(blockSprite), background(backgroundSprite), frame(frameSprite);
 
     int dx=0; bool rotate=0; int colorNum=1;
     float timer=0,delay=0.3; 
@@ -70,38 +70,38 @@ int tetris()
     if (Keyboard::isKeyPressed(Keyboard::Down)) delay=0.05;
 
     //// <- Move -> ///
-    for (int i=0;i<4;i++)  { b[i]=a[i]; a[i].x+=dx; }
-    if (!check()) for (int i=0;i<4;i++) a[i]=b[i];
+    for (int i=0;i<4;i++)  { blockVertic[i]=blockHoriz[i]; blockHoriz[i].x+=dx; }
+    if (!check()) for (int i=0;i<4;i++) blockHoriz[i]=blockVertic[i];
 
     //////Rotate//////
     if (rotate)
       {
-        Point p = a[1]; //center of rotation
+        Point centerBlock = blockHoriz[1]; //center of rotation
         for (int i=0;i<4;i++)
           {
-            int x = a[i].y-p.y;
-            int y = a[i].x-p.x;
-            a[i].x = p.x - x;
-            a[i].y = p.y + y;
+            int x = blockHoriz[i].y-centerBlock.y;
+            int y = blockHoriz[i].x-centerBlock.x;
+            blockHoriz[i].x = centerBlock.x - x;
+            blockHoriz[i].y = centerBlock.y + y;
            }
-           if (!check()) for (int i=0;i<4;i++) a[i]=b[i];
+           if (!check()) for (int i=0;i<4;i++) blockHoriz[i]=blockVertic[i];
       }
 
     ///////Tick//////
     if (timer>delay)
       {
-        for (int i=0;i<4;i++) { b[i]=a[i]; a[i].y+=1; }
+        for (int i=0;i<4;i++) { blockVertic[i]=blockHoriz[i]; blockHoriz[i].y+=1; }
 
         if (!check())
         {
-         for (int i=0;i<4;i++) field[b[i].y][b[i].x]=colorNum;
+         for (int i=0;i<4;i++) field[blockVertic[i].y][blockVertic[i].x]=colorNum;
 
          colorNum=1+rand()%7;
          int n=rand()%7;
          for (int i=0;i<4;i++)
            {
-            a[i].x = figures[n][i] % 2;
-            a[i].y = figures[n][i] / 2;
+            blockHoriz[i].x = figures[n][i] % 2;
+            blockHoriz[i].y = figures[n][i] / 2;
            }
         }
 
@@ -109,16 +109,16 @@ int tetris()
       }
 
     ///////check lines//////////
-    int k= height -1;
+    int spawnPoint= height -1 ;
     for (int i= height - 1;i>0;i--)
     {
         int count=0;
         for (int j=0;j< width;j++)
         {
             if (field[i][j]) count++;
-            field[k][j]=field[i][j];
+            field[spawnPoint][j]=field[i][j];
         }
-        if (count< width) k--;
+        if (count< width) spawnPoint--;
     }
 
     dx=0; rotate=0; delay=0.3;
@@ -127,23 +127,23 @@ int tetris()
     window.clear(Color::White);    
     window.draw(background);
           
-    for (int i=0;i< height;i++)//While the block is not at the bottom
+    for (int i = 0;i < height;i++)//While the block is not at the bottom
      for (int j=0;j< width;j++)
 
        {
          if (field[i][j]==0) continue;
-         s.setTextureRect(IntRect(field[i][j]*18,0,18,18));
-         s.setPosition(j*18,i*18);
-         s.move(28,31); //offset
-         window.draw(s);
+         sprite.setTextureRect(IntRect(field[i][j]*18,0,18,18));
+         sprite.setPosition(j*18,i*18);
+         sprite.move(28,31); //offset
+         window.draw(sprite);
        }
 
     for (int i=0;i<4;i++)
       {
-        s.setTextureRect(IntRect(colorNum*18,0,18,18));
-        s.setPosition(a[i].x*18,a[i].y*18);
-        s.move(28,31); //offset
-        window.draw(s);
+        sprite.setTextureRect(IntRect(colorNum*18,0,18,18));
+        sprite.setPosition(blockHoriz[i].x*18,blockHoriz[i].y*18);
+        sprite.move(28,31); //offset
+        window.draw(sprite);
       }
 
     window.draw(frame);
