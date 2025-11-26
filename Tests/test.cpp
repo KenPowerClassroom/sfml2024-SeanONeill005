@@ -172,3 +172,4 @@ TEST(Player, ConstrainedDiagonallyFast) {
 	EXPECT_EQ(HEIGHT-1, p.y);
 	EXPECT_EQ(WIDTH-1, p.x);
 }
+

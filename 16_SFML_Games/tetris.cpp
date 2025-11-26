@@ -1,17 +1,16 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
+#include "tetrisPlayer.h"
 using namespace sf;
 
 const int height = 20;
 const int width = 10;
-const int blockSpriteSize = 18;
-const int blockPerShapeNum = 4;
-const int totalColourOptions = 7;
+
 
 int field[height][width] = {0};
 
 struct Point
-{int x,y;} blockHoriz[blockPerShapeNum], blockVertic[blockPerShapeNum];
+{int x,y;} blockHoriz[4], blockVertic[4];
 
 int figures[7][4] =
 {
@@ -23,12 +22,13 @@ int figures[7][4] =
     3,5,7,6, // J
     2,3,4,5, // O
 };
-void draw(RenderWindow& window, Sprite sprite, Sprite background, Sprite frame, int colorNum);
+void draw(RenderWindow& window, Sprite sprite, Sprite background, Sprite frame, int colorNum, TetrisPlayer player);
 
 
 bool check()
 {
-    for (int i = 0;i < blockPerShapeNum;i++)
+    TetrisPlayer player;
+    for (int i = 0;i < player.getBlockPerShapeNum();i++)
     {
         if (blockHoriz[i].x < 0 || blockHoriz[i].x >= width || blockHoriz[i].y >= height)
         {
@@ -46,6 +46,7 @@ bool check()
 
 int tetris()
 {
+    TetrisPlayer player;
     srand(time(0));     
 
     RenderWindow window(VideoMode(320, 480), "The Game!");
@@ -66,7 +67,7 @@ int tetris()
 
     while (window.isOpen())
     {
-        draw(window, sprite, background, frame, colorNum);
+        draw(window, sprite, background, frame, colorNum, player);
         float time = clock.getElapsedTime().asSeconds();
         clock.restart();
         timer += time;
@@ -103,14 +104,14 @@ int tetris()
             delay = 0.05;
         }
     //// <- Move -> ///
-    for (int i=0;i< blockPerShapeNum;i++)  
+    for (int i=0;i< player.getBlockPerShapeNum();i++)  
     { 
         blockVertic[i] = blockHoriz[i]; 
         blockHoriz[i].x += shapePosition; 
     }
     if (!check())  
     {
-        for (int i = 0;i < blockPerShapeNum;i++)
+        for (int i = 0;i < player.getBlockPerShapeNum();i++)
         {
             blockHoriz[i] = blockVertic[i];
         }
@@ -120,7 +121,7 @@ int tetris()
     if (rotate)
     {
         Point centerBlock = blockHoriz[1]; //center of rotation
-        for (int i = 0;i < blockPerShapeNum; i++)
+        for (int i = 0;i < player.getBlockPerShapeNum(); i++)
           {
             int x = blockHoriz[i].y-centerBlock.y;
             int y = blockHoriz[i].x-centerBlock.x;
@@ -139,7 +140,7 @@ int tetris()
     ///////Tick//////
     if (timer>delay)
     {
-        for (int i = 0; i < blockPerShapeNum; i++) 
+        for (int i = 0; i < player.getBlockPerShapeNum(); i++) 
         {
             blockVertic[i] = blockHoriz[i]; 
             blockHoriz[i].y += 1;
@@ -147,15 +148,15 @@ int tetris()
 
         if (!check())
         {
-            for (int i = 0; i < blockPerShapeNum; i++) 
+            for (int i = 0; i < player.getBlockPerShapeNum(); i++) 
             {
                 field[blockVertic[i].y][blockVertic[i].x] = colorNum;
             }
 
-            colorNum = 1 + rand()% totalColourOptions;
-            int n=rand()% totalColourOptions;
+            colorNum = 1 + rand()% player.getTotalColourOptions();
+            int n=rand()% player.getTotalColourOptions();
 
-            for (int i=0; i < blockPerShapeNum; i++)
+            for (int i=0; i < player.getBlockPerShapeNum(); i++)
             {
                 blockHoriz[i].x = figures[n][i] % 2;
                 blockHoriz[i].y = figures[n][i] / 2;
@@ -193,7 +194,7 @@ int tetris()
     return 0;
 }
 
-void draw(RenderWindow &window, Sprite sprite, Sprite background, Sprite frame, int colorNum)
+void draw(RenderWindow &window, Sprite sprite, Sprite background, Sprite frame, int colorNum, TetrisPlayer player)
 {
     window.clear(Color::White);
     window.draw(background);
@@ -207,8 +208,8 @@ void draw(RenderWindow &window, Sprite sprite, Sprite background, Sprite frame, 
             {
                 continue;
             }
-            sprite.setTextureRect(IntRect(field[i][j] * blockSpriteSize, 0, blockSpriteSize, blockSpriteSize));
-            sprite.setPosition(j * blockSpriteSize, i * blockSpriteSize);
+            sprite.setTextureRect(IntRect(field[i][j] * player.getBlockSpriteSize(), 0, player.getBlockSpriteSize(), player.getBlockSpriteSize()));
+            sprite.setPosition(j * player.getBlockSpriteSize(), i * player.getBlockSpriteSize());
             sprite.move(28, 31); //offset
             window.draw(sprite);
         }
@@ -217,8 +218,8 @@ void draw(RenderWindow &window, Sprite sprite, Sprite background, Sprite frame, 
 
     for (int i = 0; i < 4; i++)
     {
-        sprite.setTextureRect(IntRect(colorNum * blockSpriteSize, 0, blockSpriteSize, blockSpriteSize));
-        sprite.setPosition(blockHoriz[i].x * blockSpriteSize, blockHoriz[i].y * blockSpriteSize);
+        sprite.setTextureRect(IntRect(colorNum * player.getBlockSpriteSize(), 0, player.getBlockSpriteSize(), player.getBlockSpriteSize()));
+        sprite.setPosition(blockHoriz[i].x * player.getBlockSpriteSize(), blockHoriz[i].y * player.getBlockSpriteSize());
         sprite.move(28, 31); //offset
         window.draw(sprite);
     }
