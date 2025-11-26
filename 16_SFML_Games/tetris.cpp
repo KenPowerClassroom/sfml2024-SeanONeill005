@@ -25,23 +25,25 @@ int figures[7][4] =
 void draw(RenderWindow& window, Sprite sprite, Sprite background, Sprite frame, int colorNum, TetrisPlayer player);
 
 
-bool check()
+bool check(TetrisPlayer player)
 {
-    TetrisPlayer player;
     for (int i = 0;i < player.getBlockPerShapeNum();i++)
     {
         if (blockHoriz[i].x < 0 || blockHoriz[i].x >= width || blockHoriz[i].y >= height)
         {
+            player.changeCheckBottom(false);
             return 0;
         }
         else if (field[blockHoriz[i].y][blockHoriz[i].x])
         {
+            player.changeCheckBottom(false);
             return 0;
         }
         
     }
-
+    player.changeCheckBottom(true);
    return 1;
+
 };
 
 int tetris()
@@ -109,7 +111,7 @@ int tetris()
         blockVertic[i] = blockHoriz[i]; 
         blockHoriz[i].x += shapePosition; 
     }
-    if (!check())  
+    if (!check(player))  
     {
         for (int i = 0;i < player.getBlockPerShapeNum();i++)
         {
@@ -128,7 +130,7 @@ int tetris()
             blockHoriz[i].x = centerBlock.x - x;
             blockHoriz[i].y = centerBlock.y + y;
            }
-           if (!check())  
+           if (!check(player))  
            {
                for (int i = 0;i < 4;i++)
                {
@@ -146,7 +148,7 @@ int tetris()
             blockHoriz[i].y += 1;
         }
 
-        if (!check())
+        if (!check(player))
         {
             for (int i = 0; i < player.getBlockPerShapeNum(); i++) 
             {
