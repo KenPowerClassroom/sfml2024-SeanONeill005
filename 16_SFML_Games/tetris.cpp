@@ -23,6 +23,8 @@ int figures[7][4] =
     3,5,7,6, // J
     2,3,4,5, // O
 };
+void draw(RenderWindow& window, Sprite sprite, Sprite background, Sprite frame, int colorNum);
+
 
 bool check()
 {
@@ -41,7 +43,6 @@ bool check()
 
    return 1;
 };
-
 
 int tetris()
 {
@@ -65,6 +66,7 @@ int tetris()
 
     while (window.isOpen())
     {
+        draw(window, sprite, background, frame, colorNum);
         float time = clock.getElapsedTime().asSeconds();
         clock.restart();
         timer += time;
@@ -145,12 +147,12 @@ int tetris()
 
         if (!check())
         {
-            for (int i=0;i< blockPerShapeNum;i++) 
+            for (int i = 0; i < blockPerShapeNum; i++) 
             {
                 field[blockVertic[i].y][blockVertic[i].x] = colorNum;
             }
 
-            colorNum=1+rand()% totalColourOptions;
+            colorNum = 1 + rand()% totalColourOptions;
             int n=rand()% totalColourOptions;
 
             for (int i=0; i < blockPerShapeNum; i++)
@@ -160,7 +162,7 @@ int tetris()
             }
         }
 
-         timer=0;
+         timer = 0;
     }
 
     ///////check lines//////////
@@ -174,9 +176,9 @@ int tetris()
             {
                 count++;
             }
-            field[spawnPoint][j]=field[i][j];
+            field[spawnPoint][j] = field[i][j];
         }
-        if (count< width) 
+        if (count < width) 
         {
             spawnPoint--;
         }
@@ -185,15 +187,23 @@ int tetris()
     shapePosition=0; rotate=0; delay=0.3;
 
     /////////draw//////////
-    window.clear(Color::White);    
+
+    }//end of While(window is open)
+
+    return 0;
+}
+
+void draw(RenderWindow &window, Sprite sprite, Sprite background, Sprite frame, int colorNum)
+{
+    window.clear(Color::White);
     window.draw(background);
-          
-    for (int i = 0;i < height;i++)//While the block is not at the bottom
+
+    for (int i = 0; i < height; i++)//While the block is not at the bottom
     {
-        for (int j = 0;j < width;j++)
+        for (int j = 0; j < width; j++)
 
         {
-            if (field[i][j] == 0) 
+            if (field[i][j] == 0)
             {
                 continue;
             }
@@ -207,15 +217,12 @@ int tetris()
 
     for (int i = 0; i < 4; i++)
     {
-        sprite.setTextureRect(IntRect(colorNum* blockSpriteSize,0, blockSpriteSize, blockSpriteSize));
-        sprite.setPosition(blockHoriz[i].x* blockSpriteSize,blockHoriz[i].y* blockSpriteSize);
-        sprite.move(28,31); //offset
+        sprite.setTextureRect(IntRect(colorNum * blockSpriteSize, 0, blockSpriteSize, blockSpriteSize));
+        sprite.setPosition(blockHoriz[i].x * blockSpriteSize, blockHoriz[i].y * blockSpriteSize);
+        sprite.move(28, 31); //offset
         window.draw(sprite);
     }
 
     window.draw(frame);
     window.display();
-    }//end of While(window is open)
-
-    return 0;
 }
